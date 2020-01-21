@@ -10,7 +10,6 @@
         <maven.compiler.source>12</maven.compiler.source>
         <maven.compiler.target>12</maven.compiler.target>
     </properties>
-    
     <build>
         <plugins>
             <!-- Downloads and puts dependencies in the lib folder. -->
@@ -50,8 +49,6 @@
                     </archive>
                 </configuration>
             </plugin>
-            
         </plugins>
     </build>
-    
 </project>

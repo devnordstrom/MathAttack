@@ -27,6 +27,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EventListener;
 import java.util.List;
 import se.devnordstrom.mathattack.difficulty.GameDifficulty;
@@ -52,15 +53,17 @@ public class GameOverController extends EntityController {
     
     private static final int MENU_ITEM_SPACING = 100;
     private static final int STAT_TEXT_VERTICAL_MARGIN = 50;
-    private static final int PROMPT_NAME_INPUT_WIDTH = 150;
+    private static final int PROMPT_NAME_INPUT_WIDTH = 250;
     private static final int PROMPT_NAME_INPUT_HEIGHT = 30;
-    private static final int PROMPT_NAME_MAX_CHAR_LENGTH = 20;
+    private static final int PROMPT_NAME_MAX_CHAR_LENGTH = 10;
+    private static final String PROMPT_NAME_TEXT = "Please enter your name";
+    private static final String HEADER_TEXT = "GAMOEVER!";
     
     private boolean active;
     
     private int baseX, baseY;
     
-    private List<PaintableEntity> entityList = new ArrayList<>();
+    private List<PaintableEntity> menuItems = new ArrayList<>();
         
     private MouseListener mouseListener;
     
@@ -88,17 +91,11 @@ public class GameOverController extends EntityController {
             throw new IllegalArgumentException("The difficulty for the entry must be set!");
         }
         
-        
         this.baseX = baseX;
-        
         this.baseY = baseY;
-                
         this.highscoreEntry = highscoreEntry;
-                
         this.repaintRunnable = repaintRunnable;
-        
         this.showHighscoreCallable = showHighscoreCallable;
-        
         this.showMenuRunnable = showMenuRunnable;
         
         this.setMouseListeners();
@@ -107,54 +104,43 @@ public class GameOverController extends EntityController {
     }
     
     private void setEntities() {
-        
         int index = 0;
         
-        entityList.add(createTextEntity(getHeaderText(), index++));
-
+        menuItems.add(createTextEntity(HEADER_TEXT, index++));
         
         List<String> gameStats = getGameStatText();
         for(String gameStat : gameStats) {
-            entityList.add(createTextEntity(gameStat, index++));   
+            menuItems.add(createTextEntity(gameStat, index++));   
         }
         
-        MenuItemEntity menuItem = createMenuItem("Back to the menu", index++, showMenuRunnable);
-        entityList.add(menuItem);
-                
-        // this.showMenuRunnable
-        
-        
-        
-        //Controls/menuitems related to the highscore.
-        if(isQualifiedForHighscore()) {
+        if(isQualifiedForHighscore()) {            
+            answerInputTextEntity = createAnswerInputEntity(baseX, 
+                    index);
             
-            TextEntity promptNameTextEntity = createTextEntity(getPromptNameText(), index++);
-
-            createAnswerInputEntity(promptNameTextEntity.getX(), 
-                    promptNameTextEntity.getY());
-            
+            TextEntity promptNameTextEntity = createTextEntity(PROMPT_NAME_TEXT, index++);
+            promptNameTextEntity.setX(baseX + (STAT_TEXT_VERTICAL_MARGIN*6));
             
             MenuItemEntity addToHighscoreEntity = createMenuItem("ADD TO HIGHSCORE", index++, ()-> {
                     manageAddEntryToHighscore();
                     });
-            
-            
-            entityList.add(promptNameTextEntity);
-            entityList.add(answerInputTextEntity);
-            entityList.add(addToHighscoreEntity);
-            
+                        
+            menuItems.add(promptNameTextEntity);
+            menuItems.add(answerInputTextEntity);
+            menuItems.add(addToHighscoreEntity);        
         } else {
-            
-            entityList.add(createTextEntity(getWhyNotQualifiedInfoText(), index++));
-            
+            menuItems.add(createTextEntity(getWhyNotQualifiedInfoText(), index++));
+            index++;
         }
-  
+        
+        MenuItemEntity menuItem = createMenuItem("SHOW MENU", index++, showMenuRunnable);
+        menuItems.add(menuItem);
+        
         MenuItemEntity showHighscoreMenuEntity = createMenuItem("SHOW HIGHSCORE", index++, ()-> {
                     goToHighscore();
                     });
         
-        entityList.add(showHighscoreMenuEntity);   
         
+        menuItems.add(showHighscoreMenuEntity);   
     }
     
     private boolean isQualifiedForHighscore() {
@@ -166,17 +152,14 @@ public class GameOverController extends EntityController {
         HighscoreEntry entryToBeat = HighscoreController.
                 getLowestQualifyingHighscoreForDifficulty(highscoreEntry.getDifficulty());
         
+        int scoreToBeat;
         if(entryToBeat == null) {
-            return "Could not read highscore info.";
+            scoreToBeat = 1;
+        } else {
+            scoreToBeat = entryToBeat.getScore() + 1;
         }
-
-        return "To qualify for highscore you need atleast " + (entryToBeat.getScore() + 1) + " points.";
         
-    }
-    
-    private String getHeaderText() {
-        return "GAMOEVER! Points: " + highscoreEntry.getScore() + ", "
-                + "Wave: " + highscoreEntry.getCompletedWaves() + ".";
+        return "To qualify for highscore you need atleast " + scoreToBeat + " points.";
     }
     
     private List<String> getGameStatText() {
@@ -199,10 +182,6 @@ public class GameOverController extends EntityController {
         return gameStats;
     }
     
-    private String getPromptNameText() {
-        return "What is your name?";
-    }
-    
     private TextEntity createTextEntity(String text, int index) {
         TextEntity textEntity = new TextEntity(text, baseX, 
                 baseY + (index * STAT_TEXT_VERTICAL_MARGIN));
@@ -212,11 +191,14 @@ public class GameOverController extends EntityController {
         return textEntity;
     }
     
-    private AnswerTextInputEntity createAnswerInputEntity(int x, int y) {
+    private AnswerTextInputEntity createAnswerInputEntity(int x, int index) {
+        int y = baseY + (index * STAT_TEXT_VERTICAL_MARGIN);
+        y -= PROMPT_NAME_INPUT_HEIGHT;
+        
         Rectangle answerInputRectangle = new Rectangle(x, y, 
                 PROMPT_NAME_INPUT_WIDTH, PROMPT_NAME_INPUT_HEIGHT);
         
-        answerInputTextEntity = new AnswerTextInputEntity(answerInputRectangle, (String value) -> {
+        AnswerTextInputEntity answerInputTextEntity = new AnswerTextInputEntity(answerInputRectangle, (String value) -> {
                 manageAddEntryToHighscore();
                 });
         
@@ -229,11 +211,12 @@ public class GameOverController extends EntityController {
     private MenuItemEntity createMenuItem(String text, int index, Runnable action) {
         
         int x = baseX;
+        int y = baseY + (STAT_TEXT_VERTICAL_MARGIN * index);
         
-        int y = baseY + (MENU_ITEM_SPACING * index);
+        MenuItemEntity menuItem = MenuUtil.createMenuItemEntity(x, y, text, action);
         
-        return MenuUtil.createMenuItemEntity(x, y, text, action);
-        
+        return menuItem;
+    
     }
     
     
@@ -242,7 +225,7 @@ public class GameOverController extends EntityController {
      * @return 
      */
     public List<PaintableEntity> getEntities() {
-        return entityList;
+        return menuItems;
     }
 
     /**
@@ -280,9 +263,7 @@ public class GameOverController extends EntityController {
         
     }
     
-    private void goToHighscore() {
-        System.out.println("goToHighscore() started!");
-        
+    private void goToHighscore() {        
         active = false;
         
         showHighscoreCallable.call(highscoreEntry.getDifficulty());
@@ -312,7 +293,12 @@ public class GameOverController extends EntityController {
     
     @Override
     public EventListener[] getEventListeners() {
-        return new EventListener[]{mouseListener, 
-            mouseMotionListener, answerInputTextEntity.getKeyListener()};
-    }    
+        List<EventListener> evenListeners = new ArrayList<>();
+        evenListeners.add(mouseListener);
+        evenListeners.add(mouseMotionListener);
+        
+        if(answerInputTextEntity != null) evenListeners.add(answerInputTextEntity.getKeyListener());
+
+        return evenListeners.toArray(new EventListener[0]);
+    }
 }

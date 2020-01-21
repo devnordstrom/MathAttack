@@ -41,9 +41,7 @@ import se.devnordstrom.mathattack.util.Util;
  * @author Orville Nordström
  */
 public class MenuController extends EntityController {
-    
-    //Text colors for the menu items.
-    
+        
     private static final Font WELLCOME_TEXT_FONT = new Font("Tahoma", Font.PLAIN, 40);    
     
     private static final int MENU_ITEM_SPACING = 75;
@@ -101,21 +99,13 @@ public class MenuController extends EntityController {
                     startGame(GameDifficulty.NORMAL);
                 });
         
-        
         MenuItemEntity hardDiffMenuItem = createMenuItemEntity("HARD", menuIndex++, ()-> {
                     startGame(GameDifficulty.HARD);
                 });
         
-        
-        MenuItemEntity extremeDiffMenuItem = createMenuItemEntity("EXTREME", menuIndex++, ()-> {
-                    startGame(GameDifficulty.EXTREME);
-                });
-        
-        
         MenuItemEntity helpMenuItem = createMenuItemEntity("HELP", menuIndex++, ()-> {
                     showHelpInfo();
                 });
-        
         
         MenuItemEntity highscoreMenuItem = createMenuItemEntity("HIGHSCORE", menuIndex++, ()-> {
                     showHighScore();
@@ -129,7 +119,6 @@ public class MenuController extends EntityController {
         entityList.add(wellcomeText);
         entityList.add(normalDiffMenuItem);
         entityList.add(hardDiffMenuItem);
-        entityList.add(extremeDiffMenuItem);
         entityList.add(helpMenuItem);
         entityList.add(highscoreMenuItem);
         entityList.add(quitMenuItem);

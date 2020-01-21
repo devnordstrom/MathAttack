@@ -46,7 +46,7 @@ public class AnswerTextInputEntity implements PaintableEntity {
     
     private static final int TEXT_FIELD_BORDER_WIDTH = 2;
     
-    private static final int DEFAULT_MAX_CHAR_LENGTH = 10;
+    public static final int DEFAULT_MAX_CHAR_LENGTH = 10;
     
     private static final boolean CARET_ENABLED = true;
     

@@ -24,6 +24,9 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowStateListener;
 import java.util.EventListener;
 import javax.swing.JFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
@@ -52,7 +55,7 @@ public class GuiController {
     private final GameScreenController gameScreenController;
 
     private final Runnable showHighscoreRunnable = () -> {
-        showHighscore(GameDifficulty.NORMAL);
+        showHighscore(null);
     };
     
     private MenuController menuController;
@@ -80,8 +83,8 @@ public class GuiController {
         mainJFrame.setBackground(DEFAULT_BACKGROUND_COLOR);
         mainJFrame.setResizable(false);
         mainJFrame.setLayout(new BorderLayout());
-        mainJFrame.setLocationRelativeTo(null);    //Centers the frame.
-                
+        mainJFrame.setLocationRelativeTo(null);    //Centers the frame.        
+        
         Container container = mainJFrame.getContentPane();
         container.add(gameScreenController, BorderLayout.CENTER);
     }
@@ -139,7 +142,7 @@ public class GuiController {
     
     private Callable<GameDifficulty> getShowHighscoreCallable() {
         return (GameDifficulty difficulty) -> {
-            showHighscore(difficulty);
+            showHighscore(null);
         };
     }
     
@@ -147,9 +150,7 @@ public class GuiController {
      * 
      * @param difficulty 
      */
-    private void showHighscore(GameDifficulty difficulty) {
-        System.out.println("showHighscore(\"" + difficulty + "\") started!");
- 
+    private void showHighscore(GameDifficulty difficulty) { 
         highscoreGuiController = new HighscoreGuiController(getShowMenuRunnable(), 
                 difficulty, BASE_X, BASE_Y);
         

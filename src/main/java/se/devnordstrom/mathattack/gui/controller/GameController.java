@@ -89,24 +89,14 @@ public class GameController extends EntityController {
      */
     public GameController(int screenWidth, int screenHeight, Callable<HighscoreEntry> showHighscoreCallable) {
         this.screenWidth = screenWidth;
-        
         this.screenHeight = screenHeight;
-        
         this.showHighscoreCallable = showHighscoreCallable;
-        
         this.waveNameX = (screenWidth / 2) - 50;
-    
         this.waveNameY = (screenHeight / 2) - 100;
-        
         this.answerX = screenWidth / 2;
-        
         this.answerY = screenHeight - 300;
-        
         this.mathProblemController = new MathProblemController(screenWidth, screenHeight);
-        
         this.player = new Player();
-        
-        this.player.setHitPoints(1);
         
         setGroundEntity();        
         
@@ -208,9 +198,7 @@ public class GameController extends EntityController {
             
             milliDellay = currentMathWave.getNewWaveDelayMillis();
             
-            waveName = getWaveCount() + "";
-            
-            System.out.println("waveName -> " + waveName);
+            waveName = getWaveCount() + "";            
         }
 
         if(intervalMillis >= milliDellay) {
@@ -227,7 +215,6 @@ public class GameController extends EntityController {
             
             if(waveName != null) {
                 waveName = null;
-                System.out.println("waveName has been reset.");
             }
             
             milliDellay = currentMathWave.getBaseQuestionIntervalMs();
@@ -393,7 +380,6 @@ public class GameController extends EntityController {
     }
     
     private void stopGame() {
-        System.out.println("stopGame() started in GameController.");
         setRunning(false);
     }
     

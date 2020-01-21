@@ -24,6 +24,9 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowStateListener;
 import javax.swing.JFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JTextField;
@@ -47,7 +50,7 @@ public class MainFrame extends JFrame {
         super("Math Attack");
         
         this.width = 900;
-        this.height = 700;
+        this.height = 700;        
     }
     
     public void createGUI() {

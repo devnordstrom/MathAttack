@@ -17,7 +17,6 @@
  */
 package se.devnordstrom.mathattack.gui.controller;
 
-import java.awt.Color;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ import se.devnordstrom.mathattack.util.Util;
  */
 public class HighscoreGuiController extends EntityController {
     
-    private static final int HIGHSCORE_ENTRY_PADDING = 200;
+    private static final int HIGHSCORE_ENTRY_PADDING = 175;
     private static final int MENU_ITEM_SPACING = 150;
     private static final int MENU_ITEM_VERTICAL_SPACING = 40;
     
@@ -61,21 +60,21 @@ public class HighscoreGuiController extends EntityController {
             int baseX, int baseY) {
         this.baseX = baseX;
         this.baseY = baseY;
-        this.highscoreBaseY = baseY + (MENU_ITEM_VERTICAL_SPACING*4);
+        this.highscoreBaseY = baseY + MENU_ITEM_VERTICAL_SPACING*2;
         this.showMenuRunnable = showMenuRunnable;
         this.gameDifficulty = gameDifficulty;
         this.mouseListener = MenuUtil.getMenuMouseListener(this);
         this.mouseMotionListener = MenuUtil.getMenuMouseMotionListener(this);
         
-        setMenuItemEntityList();
+        setMenuItems();
         
-        refreshEntities();
+        setHighscoreItems();
     }
     
     /**
-     * NORMAL HARD EXTREME MENU EXIT
+     *  
      */
-    private void setMenuItemEntityList() {
+    private void setMenuItems() {
         if(menuItemEntityList != null) {
             return;
         }
@@ -83,16 +82,10 @@ public class HighscoreGuiController extends EntityController {
         int x = baseX;
         
         menuItemEntityList = new ArrayList<>();
-        
-        for(GameDifficulty difficulty : GameDifficulty.values()) {
-            menuItemEntityList.add(createMenuItemForDifficulty(difficulty, x));
-
-            x += MENU_ITEM_SPACING;
-        }
 
         MenuItemEntity goToMenuMenuItem = MenuUtil.createMenuItemEntity(x, baseY, 
                 "MENU", showMenuRunnable);
-        x += MENU_ITEM_SPACING;
+        x += MENU_ITEM_SPACING*4;
         
         menuItemEntityList.add(goToMenuMenuItem);
         
@@ -107,7 +100,8 @@ public class HighscoreGuiController extends EntityController {
     
     /**
      * 
-     */ 
+     */
+    @Deprecated
     private MenuItemEntity createMenuItemForDifficulty(GameDifficulty difficulty, int x) {
         Runnable action = ()-> {
             setGameDifficulty(difficulty);
@@ -119,20 +113,20 @@ public class HighscoreGuiController extends EntityController {
         return menuItemEntity;
     }
     
+    @Deprecated
     public void setGameDifficulty(GameDifficulty gameDifficulty) {
         this.gameDifficulty = gameDifficulty;
         
-        refreshEntities();
+        setHighscoreItems();
     }
     
     public void printHighscore() {
         List<HighscoreEntry> highscoreEntryList = 
-                HighscoreController.getHighscoreEntriesForDifficulty(gameDifficulty);
+                HighscoreController.getHighscoreEntries();
         
         StringBuilder sb = new StringBuilder();
         
         for(int i = 0; i < highscoreEntryList.size(); i++) {
-            
             HighscoreEntry entry = new HighscoreEntry();
             
             String entryInfo = "#" + (i + 1) + " " + entry.getPlayerName() 
@@ -145,54 +139,72 @@ public class HighscoreGuiController extends EntityController {
         System.out.println(sb.toString());
     }
     
-    private void refreshEntities() {
-        GameDifficulty.values();
-        
+    private void setHighscoreItems() {
         highscoreTextEntryList.clear();
-
+        
+        String highscoreHeader = "Highscore";
+        if(gameDifficulty != null) {
+            highscoreHeader = " for "+gameDifficulty;
+        }
+        
         int diffTextY = highscoreBaseY;
-        TextEntity diffTextEntity = new TextEntity("Highscore for " + gameDifficulty, baseX, diffTextY);
+        TextEntity diffTextEntity = new TextEntity(highscoreHeader, baseX, diffTextY);
         diffTextEntity.setFont(MenuUtil.MENU_ITEM_FONT);
         
-        highscoreTextEntryList.add(diffTextEntity);
+        highscoreTextEntryList.add(diffTextEntity);                
         
         List<HighscoreEntry> highscoreEntryList = fetchHighscoreEntries();
                 
         if(highscoreEntryList.isEmpty()) {
-            int noEntriesY = baseY + (MENU_ITEM_VERTICAL_SPACING * 2);
+            int noEntriesY = highscoreBaseY + MENU_ITEM_VERTICAL_SPACING;
             TextEntity noEntriesTextEntity = new TextEntity("(No entries)", baseX, noEntriesY);
             noEntriesTextEntity.setFont(MenuUtil.MENU_ITEM_FONT);
             highscoreTextEntryList.add(noEntriesTextEntity);
-        }
-        
-        for(int i = 0; i < highscoreEntryList.size(); i++) {
-            HighscoreEntry highscoreEntry = highscoreEntryList.get(i);            
-            highscoreTextEntryList.addAll(createHighscoreTextEntries(highscoreEntry, (i + 1)));
+        } else {
+            for(int i = 0; i < highscoreEntryList.size(); i++) {
+                HighscoreEntry highscoreEntry = highscoreEntryList.get(i);            
+                highscoreTextEntryList.addAll(createHighscoreTextEntries(highscoreEntry, i));
+            }
         }
     }
     
     private List<HighscoreEntry> fetchHighscoreEntries() {
-        return HighscoreController.getHighscoreEntriesForDifficulty(gameDifficulty);
+        return HighscoreController.getHighscoreEntries();
     }
-    
-    @Deprecated
-    private TextEntity createHighscoreTextEntry(HighscoreEntry highscoreEntry, int index) {
-        String format = "%1$"+HIGHSCORE_ENTRY_PADDING+"s";
-        String formatedDate = Util.formatDate(highscoreEntry.getCreatedAt());
-        String name = highscoreEntry.getPlayerName();
-        int score = highscoreEntry.getScore();
-                
-        String highscoreInfoRow = String.format("%1$-"+HIGHSCORE_ENTRY_PADDING+"d", score);
-        highscoreInfoRow += String.format("%1$"+HIGHSCORE_ENTRY_PADDING+"s", name);
-        highscoreInfoRow += String.format("%1$"+HIGHSCORE_ENTRY_PADDING+"s", formatedDate);
         
-        int y = highscoreBaseY + ((index + 1) * MENU_ITEM_VERTICAL_SPACING);
-                
-        TextEntity highscoreTextEntity = new TextEntity(highscoreInfoRow, baseX, y);
-        highscoreTextEntity.setColor(MenuUtil.MENU_COLOR);
-        highscoreTextEntity.setFont(MenuUtil.MENU_ITEM_FONT);
+    private List<TextEntity> createHighscoreHeaderTextEntries(int rowIndex) {
+        int x = baseX;
+        int y = highscoreBaseY + ((rowIndex + 1) * MENU_ITEM_VERTICAL_SPACING);
         
-        return highscoreTextEntity;
+        List<TextEntity> textEntities = new ArrayList<>();
+        
+        TextEntity scoreTextEntity = new TextEntity("SCORE", x, y);
+        scoreTextEntity.setColor(MenuUtil.MENU_COLOR);
+        scoreTextEntity.setFont(MenuUtil.MENU_ITEM_FONT);
+        textEntities.add(scoreTextEntity);
+        
+        x += HIGHSCORE_ENTRY_PADDING;
+        
+        TextEntity difficultyTextEntity = new TextEntity("DIFFICULTY", x, y);
+        difficultyTextEntity.setColor(MenuUtil.MENU_COLOR);
+        difficultyTextEntity.setFont(MenuUtil.MENU_ITEM_FONT);
+        textEntities.add(difficultyTextEntity);
+        
+        x += HIGHSCORE_ENTRY_PADDING;
+        
+        TextEntity nameTextEntity = new TextEntity("NAME", x, y);
+        nameTextEntity.setColor(MenuUtil.MENU_COLOR);
+        nameTextEntity.setFont(MenuUtil.MENU_ITEM_FONT);
+        textEntities.add(nameTextEntity);
+        
+        x += HIGHSCORE_ENTRY_PADDING;
+        
+        TextEntity dateTextEntity = new TextEntity("DATE", x, y);
+        dateTextEntity.setColor(MenuUtil.MENU_COLOR);
+        dateTextEntity.setFont(MenuUtil.MENU_ITEM_FONT);
+        textEntities.add(dateTextEntity);
+        
+        return textEntities;
     }
     
     private List<TextEntity> createHighscoreTextEntries(HighscoreEntry entry, int rowIndex) {
@@ -212,6 +224,15 @@ public class HighscoreGuiController extends EntityController {
         textEntities.add(scoreTextEntity);
         
         x += HIGHSCORE_ENTRY_PADDING;
+        
+        
+        TextEntity difficultyTextEntity = new TextEntity(entry.getDifficulty().toString(), x, y);
+        difficultyTextEntity.setColor(MenuUtil.MENU_COLOR);
+        difficultyTextEntity.setFont(MenuUtil.MENU_ITEM_FONT);
+        textEntities.add(difficultyTextEntity);
+        
+        x += HIGHSCORE_ENTRY_PADDING;
+        
         
         TextEntity nameTextEntity = new TextEntity(name, x, y);
         nameTextEntity.setColor(MenuUtil.MENU_COLOR);

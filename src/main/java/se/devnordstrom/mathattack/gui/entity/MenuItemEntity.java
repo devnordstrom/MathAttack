@@ -191,7 +191,7 @@ public class MenuItemEntity implements PaintableEntity {
             g.setColor(color);
         }
 
-        g.drawString(text, x + textMarginX, y + textMarginY);
+        g.drawString(text, x+textMarginX, y + textMarginY);
         
     }
     

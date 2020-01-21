@@ -230,9 +230,6 @@ public class MathProblemController {
         
         speedModifier *= Math.pow(CLUSTER_SPEED_MODIFIER_FACTOR, normalQuestionsCount - 1);
         
-        System.out.println("Now setting speedModifyer to " + String.format("%.4f", speedModifier) 
-                + " since normalQuestionCount: " + normalQuestionsCount);
-        
         for(MathProblem mathProblem : mathCluster.getMathProblems()) {
             if(!mathProblem.isBonusQuestion()) mathProblem.setSpeedModifyer(speedModifier);
         }

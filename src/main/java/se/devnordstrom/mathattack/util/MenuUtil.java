@@ -43,16 +43,16 @@ public class MenuUtil {
     private static final Color ACTIVE_MENU_COLOR = Color.DARK_GRAY;
     
     private static final Color DISABLED_MENU_COLOR = new Color(50, 50, 50);
-
+    
     public static final Font MENU_ITEM_FONT = new Font(DEFAULT_FONT_NAME, Font.PLAIN, 30);
     
     public static final int MENU_ITEM_WIDTH = 200;
     
     public static final int MENU_ITEM_HEIGHT = 50;
-
-    private static final int MENU_TEXT_MARGIN_X = 20;
-
-    private static final int MENU_TEXT_MARGIN_Y = 35;
+    
+    private static final int MENU_TEXT_MARGIN_X = 0;
+    
+    private static final int MENU_TEXT_MARGIN_Y = 0;
     
     /**
      * 

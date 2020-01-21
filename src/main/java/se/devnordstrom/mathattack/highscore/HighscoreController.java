@@ -38,6 +38,18 @@ public class HighscoreController {
     
     private static final int DISPLAY_HIGHSCORE_MAXIMUM = 10;
     
+    
+    public static List<HighscoreEntry> getHighscoreEntries()
+    {
+        List<HighscoreEntry> entries = getHighscoreEntriesForDifficulty(null);
+        
+        while(entries.size() > DISPLAY_HIGHSCORE_MAXIMUM) {
+            entries.remove(entries.size()-1);
+        }
+        
+        return entries;
+    }
+    
     /**
      * Reads and sorts the Highscore entries for the difficulty provided.
      * 
@@ -46,16 +58,13 @@ public class HighscoreController {
      * @return 
      */
     public static List<HighscoreEntry> getHighscoreEntriesForDifficulty(GameDifficulty difficulty)
-            throws IllegalArgumentException {
-        
-        if(difficulty == null) throw new IllegalArgumentException("The difficulty must not be null!");
-                    
+            throws IllegalArgumentException {                    
         List<HighscoreEntry> highscoreEntryList = new ArrayList<>();
         
         List<HighscoreEntry> unserializedHighscoreEntryList = readHighscoreEntries();
         
         for(HighscoreEntry highscoreEntry : unserializedHighscoreEntryList) {
-            if(difficulty == highscoreEntry.getDifficulty()) {
+            if(difficulty == null || difficulty == highscoreEntry.getDifficulty()) {
                 highscoreEntryList.add(highscoreEntry);
             }
         }
@@ -78,7 +87,6 @@ public class HighscoreController {
             }
             return entryList;
         } catch(FileNotFoundException fex) {
-            fex.printStackTrace();
             return new ArrayList<>();
         }
     }
@@ -119,15 +127,17 @@ public class HighscoreController {
             throw new IllegalArgumentException("The difficulty must be set!");
         }
         
+        if(entry.getScore() <= 0) {
+            return false;
+        }
         
-        List<HighscoreEntry> highScoreEntryList = getHighscoreEntriesForDifficulty(entry.getDifficulty());
+        List<HighscoreEntry> highScoreEntryList = HighscoreController.getHighscoreEntries();
         
         highScoreEntryList.add(entry);
         
         Collections.sort(highScoreEntryList);
         
         return highScoreEntryList.indexOf(entry) <= DISPLAY_HIGHSCORE_MAXIMUM;
-        
     }
     
     /**
@@ -170,13 +180,7 @@ public class HighscoreController {
         
         highscoreEntryList.add(entry);
         
-        saveHighscoreList(highscoreEntryList);
-        
-        try {
-            Util.serializeObject(new File("HIGHSCORE_ENTRY"), entry);
-        } catch(Exception ex) {
-            ex.printStackTrace();
-        }    
+        saveHighscoreList(highscoreEntryList); 
     }
     
     private static void saveHighscoreList(List<HighscoreEntry> highscoreEntryList) {

@@ -33,20 +33,23 @@ public class App {
                 + "\n"
                 + "\nThe problems will "
                 + "\nbecome harder and move faster for each "
-                + "\nsuccsessive wave"
+                + "\nsuccsessive wave."
                 + "\n"
                 + "\nThere are also bonus questions which will move horizontally "
                 + "\nout of the screen and provide more points than normal questions."
                 + "\n"
                 + "\n"
                 + ""
-                + "\nAuthor: \"" + AUTHOR_NAME + "\".";
+                + "\nAuthor: "+AUTHOR_NAME;
     
     public static void main(String[] args) {
         setOutput();
         
         GuiController guiController = new GuiController();
         guiController.startGui();
+        
+        System.out.println("");
+        System.err.println("");
     }
     
     /**
