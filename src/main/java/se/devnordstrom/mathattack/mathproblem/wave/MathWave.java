@@ -20,7 +20,7 @@ package se.devnordstrom.mathattack.mathproblem.wave;
 import java.util.ArrayList;
 import java.util.List;
 import se.devnordstrom.mathattack.mathproblem.MathProblem;
-import se.devnordstrom.mathattack.mathproblem.MathProblemController;
+import se.devnordstrom.mathattack.mathproblem.MathProblemClusterFactory;
 import se.devnordstrom.mathattack.mathproblem.wave.cluster.MathCluster;
 
 /**
@@ -29,43 +29,41 @@ import se.devnordstrom.mathattack.mathproblem.wave.cluster.MathCluster;
  */
 public class MathWave implements Wave {
     
-    private static final int DEFAULT_PROBLEM_COUNT = 4;
+    private static final int DEFAULT_PROBLEM_COUNT = 8;
     
     private static final int BASE_QUESTION_INTERVAL_MILLIS = 2 * 1000;
     
-    private static final double INTERVAL_DECREASE_RATE = 0.9;
+    private static final double INTERVAL_DECREASE_RATE = 0.95;
+    
+    private static final long DEFAULT_NEW_WAVE_DELAY = 5 * 1000;
     
     private int mathClusterCount;
     
-    private static int waveCount = 0;
+    private static int waveCount;
         
     private final int waveIndex;
     
     private long questionIntervalMillis = BASE_QUESTION_INTERVAL_MILLIS;
     
-    private long newWaveDelayMs = 5 * 1000;
+    private long newWaveDelayMs = DEFAULT_NEW_WAVE_DELAY;
     
-    private int difficultyLevel;
-        
-    private int currentMathProblemIndex = 0;
-    
-    private MathProblemController mathProblemController;
+    private int waveDifficultyLevel, currentMathProblemIndex;
+            
+    private MathProblemClusterFactory mathProblemController;
     
     private List<MathCluster> mathClusterList;
     
-    public MathWave(MathProblemController mathProblemMan, int difficultyLevel) {
-        
-        waveCount++;
-        
-        this.waveIndex = waveCount;
+    public MathWave(MathProblemClusterFactory mathProblemController, int waveDifficultyLevel) {
+            
+        this.waveIndex = ++waveCount;
                 
-        this.difficultyLevel = difficultyLevel;
+        this.waveDifficultyLevel = waveDifficultyLevel;
         
         this.mathClusterList = new ArrayList<>();
         
-        this.mathProblemController = mathProblemMan;
+        this.mathProblemController = mathProblemController;
                 
-        setQuestionIntevalMillis(difficultyLevel);
+        setQuestionIntevalMillis(waveDifficultyLevel);
         
         generateMathProblemClusters();
         
@@ -84,13 +82,13 @@ public class MathWave implements Wave {
         mathClusterCount = getProblemCount();
                 
         for(int i = 0; i < mathClusterCount; i++) {            
-            mathClusterList.add(mathProblemController.nextMathCluster(difficultyLevel));
+            mathClusterList.add(mathProblemController.generateMathCluster(waveDifficultyLevel));
         }
 
     }
     
     private int getProblemCount() {
-        return DEFAULT_PROBLEM_COUNT + (difficultyLevel - 1);   
+        return DEFAULT_PROBLEM_COUNT + (int)Math.round(Math.log(waveDifficultyLevel-1));
     }
     
     @Override
@@ -99,12 +97,12 @@ public class MathWave implements Wave {
     }
  
     public void setDifficulty(int difficulty) {
-        this.difficultyLevel = difficulty;
+        this.waveDifficultyLevel = difficulty;
     }
     
     @Override
     public int getDifficulty() {
-        return this.difficultyLevel;
+        return this.waveDifficultyLevel;
     }
 
     @Override

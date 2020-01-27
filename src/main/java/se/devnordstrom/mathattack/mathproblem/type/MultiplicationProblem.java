@@ -45,7 +45,7 @@ public class MultiplicationProblem extends MathProblem {
         
         for(int i = 0; i < 3; i++) {
             
-            if(i > 0 && (i + 1) % 2 == 0) {   //Since 0 % 2 is also 0 and we don't whe first operand to be a multiplyer.
+            if(i > 0 && (i + 1) % 2 == 0) {
                                                 
                 operand = new MathOperand(MathProblem.OPERATOR_MULTIPLY);
                                 

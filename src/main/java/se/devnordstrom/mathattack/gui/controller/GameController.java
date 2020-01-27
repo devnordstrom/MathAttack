@@ -33,7 +33,7 @@ import se.devnordstrom.mathattack.difficulty.GameDifficulty;
 import se.devnordstrom.mathattack.gui.entity.AnswerTextInputEntity;
 import se.devnordstrom.mathattack.gui.entity.TextEntity;
 import se.devnordstrom.mathattack.mathproblem.MathProblem;
-import se.devnordstrom.mathattack.mathproblem.MathProblemController;
+import se.devnordstrom.mathattack.mathproblem.MathProblemClusterFactory;
 import se.devnordstrom.mathattack.mathproblem.wave.MathWave;
 import se.devnordstrom.mathattack.mathproblem.wave.cluster.MathCluster;
 import se.devnordstrom.mathattack.player.Player;
@@ -52,11 +52,11 @@ public class GameController extends EntityController {
     private static final int ANSWER_FONT_SIZE = 18;
     private static final int WAVE_NAME_FONT_SIZE = 24;
     
-    private MathProblemController mathProblemController;
+    private final MathProblemClusterFactory mathProblemController;
             
     private String waveName;
     
-    private int difficultyLevel, waveCount, groundSurfaceY, 
+    private int waveDifficultyLevel, waveCount, groundSurfaceY, 
             screenWidth, screenHeight, waveNameX, waveNameY, answerX, answerY;
     
     private long milliDellay, intervalMillis;
@@ -95,7 +95,7 @@ public class GameController extends EntityController {
         this.waveNameY = (screenHeight / 2) - 100;
         this.answerX = screenWidth / 2;
         this.answerY = screenHeight - 300;
-        this.mathProblemController = new MathProblemController(screenWidth, screenHeight);
+        this.mathProblemController = new MathProblemClusterFactory(screenWidth, screenHeight);
         this.player = new Player();
         
         setGroundEntity();        
@@ -132,38 +132,40 @@ public class GameController extends EntityController {
      * @return 
      */
     private MathWave nextMathWave() {
-        
-        MathWave mathWave = new MathWave(mathProblemController, getDifficultyLevel());
+    
+        int waveDifficultyLevel = getWaveDifficultyLevel();
+                
+        MathWave mathWave = new MathWave(mathProblemController, waveDifficultyLevel);
         
         return mathWave;
         
     }
     
-    private int getDifficultyLevel() {
+    private int getWaveDifficultyLevel() {
         
-        int returnDifficultyLevel = 0;
+        int returnWaveDifficultyLevel;
         
         switch(difficulty) {
             
             case NORMAL:
                 
-                return difficultyLevel++;
+                return ++waveDifficultyLevel;
                 
             case HARD:
                 
-                returnDifficultyLevel = difficultyLevel + 3;
+                returnWaveDifficultyLevel = waveDifficultyLevel + 8;
                 
-                difficultyLevel += 2;
+                waveDifficultyLevel += 2;
                 
-                return returnDifficultyLevel;
+                return returnWaveDifficultyLevel;
                 
             case EXTREME:
                 
-                returnDifficultyLevel = difficultyLevel + 5;
+                returnWaveDifficultyLevel = waveDifficultyLevel + 8;
                 
-                difficultyLevel += 3;
+                waveDifficultyLevel += 3;
                 
-                return returnDifficultyLevel;
+                return returnWaveDifficultyLevel;
                 
             default:
                 

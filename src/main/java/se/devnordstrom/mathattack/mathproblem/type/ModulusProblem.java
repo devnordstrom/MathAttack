@@ -35,7 +35,7 @@ public class ModulusProblem extends MathProblem {
     private int divisorMinValue = 1;
     
     private int divisorMaxValue = 0;
-
+    
     public ModulusProblem(Random rand) {
         super(rand);
     }

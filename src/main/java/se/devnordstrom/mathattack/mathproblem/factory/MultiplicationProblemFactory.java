@@ -26,20 +26,33 @@ import se.devnordstrom.mathattack.mathproblem.type.MultiplicationProblem;
  */
 public class MultiplicationProblemFactory {
     
-    public static final int STARTING_SCORE = 20;
+    private static final int DEFAULT_STARTING_SCORE = 20;
+    private static final int DEFAULT_OPERAND_STARTING_MAX_VALUE = 5;
+    private static final double DEFAULT_BONUS_SCORE_MODIFYER = 2.0;
+    private static final double DEFAULT_BONUS_SPEED_MOD = 1.2;
     
-    private static final int OPERAND_STARTING_MAX_VALUE = 5;
+    private int startingScore, operandStartingMaxValue;
     
-    static MultiplicationProblem generateProblem(Random rand, 
-            int difficultyLevel, boolean isBonusQuestion) {
+    private double bonusScoreMod, bonusSpeedMod;
+
+    private final Random random;
+    
+    public MultiplicationProblemFactory(Random random) {
+        this.random = random;
+        this.startingScore = DEFAULT_STARTING_SCORE;
+        this.operandStartingMaxValue = DEFAULT_OPERAND_STARTING_MAX_VALUE;
+        this.bonusScoreMod = DEFAULT_BONUS_SCORE_MODIFYER;
+        this.bonusSpeedMod = DEFAULT_BONUS_SPEED_MOD;   
+    }
+    
+    public MultiplicationProblem generateProblem(int waveDifficultyLevel, boolean isBonusQuestion) {
         
-        MultiplicationProblem multiProb = new MultiplicationProblem(rand);
-        
-        multiProb.setMaxValue(getMultiplyerOperandMaxValue(difficultyLevel));
-                
+        MultiplicationProblem multiProb = new MultiplicationProblem(random);
+        multiProb.setMaxValue(getMultiplyerOperandMaxValue(waveDifficultyLevel));
         multiProb.setBonusQuestion(isBonusQuestion);
-        
         multiProb.generateQuestion();
+        setSpeed(multiProb, waveDifficultyLevel);
+        setScore(multiProb, waveDifficultyLevel);
         
         return multiProb;
         
@@ -49,8 +62,99 @@ public class MultiplicationProblemFactory {
      * This method will return the maximum operand value for a multiplier problem.
      * @return 
      */
-    private static int getMultiplyerOperandMaxValue(int difficultyLevel) {
-        return OPERAND_STARTING_MAX_VALUE + (int) Math.round((difficultyLevel) * 0.25);
+    private int getMultiplyerOperandMaxValue(int waveDifficultyLevel) {
+        return operandStartingMaxValue + (int) Math.round((waveDifficultyLevel) * 0.25);
     }
 
+    private void setSpeed(MultiplicationProblem multiProb, int waveDifficultyLevel) {
+        double speed = multiProb.getMinMoveSpeed();
+        int terms = multiProb.getMathOperandList().size();
+
+        speed += (double) (waveDifficultyLevel - 1) / 25.0;
+        if(terms <= 3) {
+            speed *= 0.5;
+        }
+        
+        multiProb.setMoveSpeed(speed);
+        
+        if(multiProb.isBonusQuestion()) {
+            multiProb.setSpeedModifyer(bonusSpeedMod);
+        }
+    }
+    
+    /**
+     * 
+     * @param addProb
+     * @param waveDifficultyLevel 
+     */
+    private void setScore(MultiplicationProblem multiProb, int waveDifficultyLevel) {
+        int questionScore = this.getStartingScore() + waveDifficultyLevel;
+        
+        if(multiProb.getMathOperandList().size() > 3) {
+            int operandCount = (multiProb.getMathOperandList().size() + 1) / 2;
+            questionScore += (operandCount - 1) * questionScore;
+        }
+        
+        if(multiProb.isBonusQuestion()) {
+            questionScore *= getBonusScoreMod();
+        }
+        
+        multiProb.setScore(questionScore);
+    }
+    
+    /**
+     * @return the startingScore
+     */
+    public int getStartingScore() {
+        return startingScore;
+    }
+
+    /**
+     * @param startingScore the startingScore to set
+     */
+    public void setStartingScore(int startingScore) {
+        this.startingScore = startingScore;
+    }
+
+    /**
+     * @return the operandStartingMaxValue
+     */
+    public int getOperandStartingMaxValue() {
+        return operandStartingMaxValue;
+    }
+
+    /**
+     * @param operandStartingMaxValue the operandStartingMaxValue to set
+     */
+    public void setOperandStartingMaxValue(int operandStartingMaxValue) {
+        this.operandStartingMaxValue = operandStartingMaxValue;
+    }
+
+    /**
+     * @return the bonusScoreMod
+     */
+    public double getBonusScoreMod() {
+        return bonusScoreMod;
+    }
+
+    /**
+     * @param bonusScoreMod the bonusScoreMod to set
+     */
+    public void setBonusScoreMod(double bonusScoreMod) {
+        this.bonusScoreMod = bonusScoreMod;
+    }
+
+    /**
+     * @return the bonusSpeedMod
+     */
+    public double getBonusSpeedMod() {
+        return bonusSpeedMod;
+    }
+
+    /**
+     * @param bonusSpeedMod the bonusSpeedMod to set
+     */
+    public void setBonusSpeedMod(double bonusSpeedMod) {
+        this.bonusSpeedMod = bonusSpeedMod;
+    }
 }
