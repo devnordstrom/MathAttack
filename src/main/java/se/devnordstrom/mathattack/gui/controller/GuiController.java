@@ -20,6 +20,9 @@ package se.devnordstrom.mathattack.gui.controller;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -97,14 +100,14 @@ public class GuiController {
         
         mainJFrame.setVisible(true);
         mainJFrame.requestFocus();
-        
+                
         showMenu();
     }
     
     /**
      * 
      */
-    public void showMenu() {        
+    public void showMenu() {
         if(menuController == null) {
             setMenuController();
         }

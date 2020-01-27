@@ -22,10 +22,7 @@ import se.devnordstrom.mathattack.gui.controller.GameController;
 import se.devnordstrom.mathattack.util.DoubleCallable;
 
 /**
- * This class manages the loop
- *
- * This is a modified version of the loop found here http://www.java-gaming.org/index.php?topic=24220.0
- * 
+ * This class manages the loop 
  */
 public class GameLoopController implements Runnable {
     
@@ -33,9 +30,9 @@ public class GameLoopController implements Runnable {
     
     private final int TARGET_FPS = 60;
     
-    private final long OPTIMAL_TIME_NANOS = 100_000_0000 / TARGET_FPS;
+    private final long OPTIMAL_FRAME_TIME_NANOS = 100_000_0000 / TARGET_FPS;
 
-    private long showFps;
+    private volatile long showFps;
    
     private volatile boolean paused;
     
@@ -58,11 +55,11 @@ public class GameLoopController implements Runnable {
                 
                 lastLoopTimeNanos = currentNanos;
                                 
-                double delta = updateLengthNanos / ((double)OPTIMAL_TIME_NANOS);
+                double delta = updateLengthNanos / ((double)OPTIMAL_FRAME_TIME_NANOS);
                 
                 gameScreenController.moveEntities(delta, updateLengthNanos);
                                                 
-                long delayTimeNanos = (lastLoopTimeNanos - System.nanoTime()) + OPTIMAL_TIME_NANOS;
+                long delayTimeNanos = (lastLoopTimeNanos - System.nanoTime()) + OPTIMAL_FRAME_TIME_NANOS;
                 
                 delay(delayTimeNanos/1000_000);
                 

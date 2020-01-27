@@ -47,9 +47,6 @@ public class App {
         
         GuiController guiController = new GuiController();
         guiController.startGui();
-        
-        System.out.println("");
-        System.err.println("");
     }
     
     /**

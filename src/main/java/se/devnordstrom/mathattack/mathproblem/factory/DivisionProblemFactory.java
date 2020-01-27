@@ -26,35 +26,135 @@ import se.devnordstrom.mathattack.mathproblem.type.DivisionProblem;
  */
 public class DivisionProblemFactory {
     
-    public static final int STARTING_SCORE = 20;
+    private static final int DEFAULT_STARTING_SCORE = 20;
+    private static final int DEFAULT_OPERAND_STARTING_MAX_VALUE = 5;
+    private static final double DEFAULT_BONUS_SCORE_MODYFIYER = 2.0;
+    private static final double DEFAULT_BONUS_SPEED_MODIFYER = 1.2;
     
-    private static final int OPERAND_STARTING_MAX_VALUE = 5;
+    private int startingScore, operandStartingMaxValue;
     
-    static DivisionProblem generateProblem(Random rand, 
-            int difficultyLevel, boolean bonusQuestion) {
+    private double bonusScoreMod, bonusSpeedMod;
+    
+    private final Random random;
+    
+    public DivisionProblemFactory(Random random) {
+        this.random = random;
+        this.startingScore = DEFAULT_STARTING_SCORE;
+        this.operandStartingMaxValue = DEFAULT_OPERAND_STARTING_MAX_VALUE;
+        this.bonusScoreMod = DEFAULT_BONUS_SCORE_MODYFIYER;
+        this.bonusSpeedMod = DEFAULT_BONUS_SPEED_MODIFYER;
+    }
+    
+    public DivisionProblem generateProblem(int waveDifficultyLevel, 
+            boolean bonusQuestion) {
         
-        DivisionProblem divProv = new DivisionProblem(rand);
+        DivisionProblem divProb = new DivisionProblem(random);
+        divProb.setBonusQuestion(bonusQuestion);
         
-        divProv.setBonusQuestion(bonusQuestion);
+        int operandMaxValue = generateOperandMaxValue(waveDifficultyLevel);       
+        divProb.setDivisorMaxValue(operandMaxValue);
+        divProb.setQuotientMaxValue(operandMaxValue);
+        divProb.generateQuestion();
         
-        int operandMaxValue = generateOperandMaxValue(difficultyLevel);
-                
-        divProv.setDivisorMaxValue(operandMaxValue);
-                
-        divProv.setQuotientMaxValue(operandMaxValue);
+        setSpeed(divProb, waveDifficultyLevel);
+        setScore(divProb, waveDifficultyLevel);
         
-        divProv.generateQuestion();
-        
-        return divProv;
-        
+        return divProb;
     }
     
     /**
      * 
      * @return 
      */
-    private static int generateOperandMaxValue(int difficultyLevel) {
-        return OPERAND_STARTING_MAX_VALUE + (int) Math.round((difficultyLevel) * 0.2);
+    private int generateOperandMaxValue(int waveDifficultyLevel) {
+        return operandStartingMaxValue + (int) Math.round((waveDifficultyLevel) * 0.2);
     }
     
+    private void setSpeed(DivisionProblem divProb, int waveDifficultyLevel) {
+        double speed = divProb.getMinMoveSpeed();
+        int terms = divProb.getMathOperandList().size();
+        
+        if(terms <= 3) {
+            speed += waveDifficultyLevel / 35.0;
+        } else {
+            speed += waveDifficultyLevel / 40.0;
+        }
+        
+        divProb.setMoveSpeed(speed);
+        
+        if(divProb.isBonusQuestion()) {
+            divProb.setSpeedModifyer(bonusSpeedMod);
+        }
+    }
+    
+    private void setScore(DivisionProblem divProb, int waveDifficultyLevel) {
+        int questionScore = this.getStartingScore() + waveDifficultyLevel;
+        
+        if(divProb.getMathOperandList().size() > 3) {
+            int operandCount = (divProb.getMathOperandList().size() + 1) / 2;
+            questionScore += (operandCount - 1) * questionScore;
+        }
+        
+        if(divProb.isBonusQuestion()) {
+            questionScore *= getBonusScoreMod();
+        }
+        
+        divProb.setScore(questionScore);
+    }
+    
+    /**
+     * @return the startingScore
+     */
+    public int getStartingScore() {
+        return startingScore;
+    }
+
+    /**
+     * @param startingScore the startingScore to set
+     */
+    public void setStartingScore(int startingScore) {
+        this.startingScore = startingScore;
+    }
+
+    /**
+     * @return the operandStartingMaxValue
+     */
+    public int getOperandStartingMaxValue() {
+        return operandStartingMaxValue;
+    }
+
+    /**
+     * @param operandStartingMaxValue the operandStartingMaxValue to set
+     */
+    public void setOperandStartingMaxValue(int operandStartingMaxValue) {
+        this.operandStartingMaxValue = operandStartingMaxValue;
+    }
+
+    /**
+     * @return the bonusScoreMod
+     */
+    public double getBonusScoreMod() {
+        return bonusScoreMod;
+    }
+
+    /**
+     * @param bonusScoreMod the bonusScoreMod to set
+     */
+    public void setBonusScoreMod(double bonusScoreMod) {
+        this.bonusScoreMod = bonusScoreMod;
+    }
+
+    /**
+     * @return the bonusSpeedMod
+     */
+    public double getBonusSpeedMod() {
+        return bonusSpeedMod;
+    }
+
+    /**
+     * @param bonusSpeedMod the bonusSpeedMod to set
+     */
+    public void setBonusSpeedMod(double bonusSpeedMod) {
+        this.bonusSpeedMod = bonusSpeedMod;
+    }
 }

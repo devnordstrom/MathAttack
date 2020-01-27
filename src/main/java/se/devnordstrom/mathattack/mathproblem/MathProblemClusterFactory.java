@@ -26,34 +26,28 @@ import se.devnordstrom.mathattack.mathproblem.wave.cluster.MathCluster;
  *
  * @author Orville Nordström
  */
-public class MathProblemController {
+public class MathProblemClusterFactory {
     
     /**
      * Used to determine the changed speed for normal questions in a cluster of problems 
      * with more than one normal question.
      * 
-     * This is so that the player won't be overwhelmed by an array of questions moving to quickly.
+     * This is so that the player won't be overwhelmed by an array of questions moving too quickly.
      * 
      * If the number of normal questions are zero or one then this value won't be used.
      * With x questions the speed modifier will be set to this value to the power of(x - 1).
      * 
      * If you don't want to decrease the speed for a number of questions set this to 1.0.
-     * If for some reason you want to increase it set this to greater than 1.0.
+     * In order to increase the speed set this to greater than 1.0.
      * 
      * If this value is set to less than zero then this value will be ignored.
      * 
      */
-    private static final double CLUSTER_SPEED_MODIFIER_FACTOR = 0.8;
-    
-    private int xDefaultMinValue;
-    
-    private int xDefaultMaxValue;
+    private static final double CLUSTER_SPEED_MODIFIER_FACTOR = 0.6;
     
     private Random rand;
     
-    private int screenWidth;
-    
-    private int screenHeight;
+    private int xDefaultMinValue, xDefaultMaxValue, screenWidth, screenHeight;
              
     private MathProblemFactory mathProblemFactory;
     
@@ -64,7 +58,7 @@ public class MathProblemController {
      * @param screenWidth
      * @param screenHeight
      */
-    public MathProblemController(int screenWidth, int screenHeight) {
+    public MathProblemClusterFactory(int screenWidth, int screenHeight) {
         this(new Random(), screenWidth, screenHeight);
     }
     
@@ -75,7 +69,7 @@ public class MathProblemController {
      * @param screenHeight 
      * 
      */
-    public MathProblemController(Random rand, int screenWidth, int screenHeight) {
+    public MathProblemClusterFactory(Random rand, int screenWidth, int screenHeight) {
         this.mathProblemFactory = new MathProblemFactory(rand);
         
         this.rand = rand;
@@ -93,20 +87,18 @@ public class MathProblemController {
         return min <= x && x <= max;
     }
     
-    private MathProblem nextMathProblem(int difficultyLevel) {
-        MathProblem mathProb = mathProblemFactory.generateMathProblem(difficultyLevel);
-
-        return mathProb;
+    private MathProblem generateMathProblem(int waveDifficultyLevel) {
+        return mathProblemFactory.generateMathProblem(waveDifficultyLevel);
     }
     
-    public MathCluster nextMathCluster(int difficultyLevel) {
+    public MathCluster generateMathCluster(int waveDifficultyLevel) {
         
         MathCluster mathCluster = new MathCluster();
                 
-        int problemCount = generateProblemCount(difficultyLevel);
+        int problemCount = generateMathClusterProblemCount(waveDifficultyLevel);
                 
         for(int i = 0; i < problemCount; i++) {
-            mathCluster.addMathProblem(nextMathProblem(difficultyLevel));
+            mathCluster.addMathProblem(generateMathProblem(waveDifficultyLevel));
         }
         
         setClusterSpeedModifyer(mathCluster);
@@ -117,15 +109,15 @@ public class MathProblemController {
         
     }
     
-    private int generateProblemCount(int difficultyLevel) {
+    private int generateMathClusterProblemCount(int waveDifficultyLevel) {
         
-        if(difficultyLevel <= 3) {
+        if(waveDifficultyLevel <= 20) {
             
             return 1;
             
-        } else if(difficultyLevel <= 10) {
+        } else if(waveDifficultyLevel <= 40) {
             
-            if(rand.nextInt(101) < 75) {
+            if(rand.nextInt(8) != 7) {
                 return 1;
             } else {
                 return 2;
@@ -133,7 +125,7 @@ public class MathProblemController {
             
         } else {
             
-            switch(rand.nextInt(101) / 10) {
+            switch(rand.nextInt(11)) {
                 
                 case 0:
                 case 1:
@@ -141,21 +133,18 @@ public class MathProblemController {
                 case 3:
                 case 4:
                 case 5:
-                    return 1;
                 case 6:
+                    return 1;
                 case 7:
-                    return 2;
                 case 8:
                 case 9:
-                    return 3;
+                    return 2;
                 default:
-                    return 4;
+                    return 3;
                 
             }
             
         }
-        
-        
     }
     
     private void generateStartingPositionForCluster(MathCluster mathCluster) {
@@ -163,7 +152,7 @@ public class MathProblemController {
         List<MathProblem> problemList = mathCluster.getMathProblems();
         
         if(problemList.isEmpty()) {
-           return;
+            return;
         }
         
         if(problemList.size() == 1) {
@@ -175,13 +164,10 @@ public class MathProblemController {
             int xPositionIncrement = 100;
             
             for(int i = 0; i < problemList.size(); i++) {
-                                
                 int xMin = xDefaultMinValue + (i * xPositionIncrement);
                 
                 //Decrementing 50 so that the questions won't collide.
                 int xMax = xMin + xPositionIncrement - 50;
-                
-                
                 
                 generateStartingPosition(problemList.get(i), xMin, xMax);
             }
@@ -215,7 +201,13 @@ public class MathProblemController {
     }
     
     private int generateStartingX(int minValue, int maxValue) {
-        return rand.nextInt(maxValue-minValue) + minValue;
+        int bounds = maxValue-minValue;
+        
+        if(bounds <= 0) {
+            bounds = 1;
+        }
+        
+        return rand.nextInt(bounds) + minValue;
     }
     
     private static void setClusterSpeedModifyer(MathCluster mathCluster) {
@@ -228,6 +220,7 @@ public class MathProblemController {
         
         double speedModifier = 1.0;
         
+        //This will reduce the speed depending on how many problems are generated at once.
         speedModifier *= Math.pow(CLUSTER_SPEED_MODIFIER_FACTOR, normalQuestionsCount - 1);
         
         for(MathProblem mathProblem : mathCluster.getMathProblems()) {

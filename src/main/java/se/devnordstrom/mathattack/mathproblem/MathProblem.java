@@ -65,9 +65,9 @@ public abstract class MathProblem implements PaintableEntity {
     
     private long hitTimeStamp;
     
-    protected double moveSpeed = 0.75;
+    protected double moveSpeed = 0.70;
     
-    protected double moveMinSpeed = 0.75;
+    protected double moveMinSpeed = 0.70;
     
     protected double moveMaxSpeed = 4.0;
     
@@ -85,10 +85,8 @@ public abstract class MathProblem implements PaintableEntity {
     
     public static final int BONUS_DIRECTION_RIGHT = -1;
     
-    private boolean isBonusQuestion;
-    
-    private boolean crashed = false;
-    
+    private boolean isBonusQuestion, crashed;
+        
     private int bonusQuestionDirection = 1;
     
     private double speedModifyer = 1.0;
@@ -116,7 +114,7 @@ public abstract class MathProblem implements PaintableEntity {
         int r = rand.nextInt(256);
         
         int g = rand.nextInt(256);
-        
+    
         int b = rand.nextInt(256);
         
         return new Color(r, g, b);
@@ -283,45 +281,19 @@ public abstract class MathProblem implements PaintableEntity {
         return crashed;
     }
     
-    public void generateQuestion() {
+    @Deprecated //Should be handled by the factory classes.
+    public abstract void generateQuestion();
+
+    public int countNumbers() {
+        int numbers = 0;
         
-        MathOperand operand = null;
-        
-        int maxValue = EASY_OPERAND_MAX;
-        
-        for(int i = 0; i < 3; i++) {
-            
-            if(i % 2 == 0) {
-    
-                operand = new MathOperand(MathProblem.OPERATOR_PLUS);
-                
-                operand.setOperator(true);
-                
-            } else {
-                
-                //Evaluates so that the answer will not become negative.
-                if(mathOperandList.size() == 2 && mathOperandList.get(1).isOperator() && mathOperandList.get(1).getValue() == MathProblem.OPERATOR_MINUS) {
-                    
-                    int firstOperandValue = (int) mathOperandList.get(0).getValue();
-                    
-                    maxValue = EASY_OPERAND_MAX - firstOperandValue;
-                    
-                }
-                
-                operand = new MathOperand(rand.nextInt(maxValue) + 1);
-                
-            }
-         
-            mathOperandList.add(operand);
-            
+        for(MathOperand operand : mathOperandList) {
+            if(operand.isNumber()) numbers++;
         }
         
-        mathOperandList.add(new MathOperand(rand.nextInt(EASY_OPERAND_MAX)));        
-        
-        MathProblemUtil.setMathProblemAnswer(this);
-        
+        return numbers;
     }
-
+    
     public List<MathOperand> getMathOperandList() {
         return this.mathOperandList;
     }

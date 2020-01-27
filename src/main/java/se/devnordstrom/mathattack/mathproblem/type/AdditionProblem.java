@@ -32,9 +32,8 @@ import se.devnordstrom.mathattack.mathproblem.MathProblemUtil;
  */
 public class AdditionProblem extends MathProblem {
     
-    private int minValue = 0;
-    
-    private int maxValue;
+    @Deprecated //Should be handled by factory class.
+    private int minValue, maxValue;
     
     private int numberCount = 2;
     
@@ -49,7 +48,7 @@ public class AdditionProblem extends MathProblem {
         
         MathOperand operand = null;
         
-        int maxCount = ((numberCount * 2) - 1); //Since the number of operators + operands will always be this number.
+        int maxCount = ((getNumberCount() * 2) - 1); //Since the number of operators + operands will always be this number.
         
         for(int i = 0; i < maxCount; i++) {
             
@@ -66,7 +65,7 @@ public class AdditionProblem extends MathProblem {
             }
          
             mathOperandList.add(operand);
-            
+                        
         }
         
         MathProblemUtil.setMathProblemAnswer(this);
